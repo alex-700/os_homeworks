@@ -1,9 +1,18 @@
 #include"../lib/helpers.h"
 #include<stdio.h>
+const size_t CHUNK_SIZE = 2048;
+
 int main()
 {
-    char buf[50];
-    int c = read_(STDIN_FILENO, buf, 0);
-    write_(STDOUT_FILENO, buf, c);
+    char buf[2048];
+    ssize_t c;
+    do {
+        c = read_(STDIN_FILENO, buf, 2048);
+        if (c == -1) {
+            printf("Fail");
+            break;
+        }
+        write_(STDOUT_FILENO, buf, c);
+    } while (c != 0);
     return 0;
 }

@@ -4,10 +4,10 @@ const size_t CHUNK_SIZE = 2048;
 
 int main()
 {
-    char buf[2048];
+    char buf[CHUNK_SIZE];
     ssize_t c;
     do {
-        c = read_(STDIN_FILENO, buf, 2048);
+        c = read_(STDIN_FILENO, buf, CHUNK_SIZE);
         if (c == -1) {
             printf("Fail");
             break;

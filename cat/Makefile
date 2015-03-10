@@ -1,5 +1,11 @@
-all:
-	gcc -L../lib -I../lib cat.c -o cat -lhelpers
-clean:
-	rm -f cat
+CC=gcc
+FLAGS=-L../lib -I../lib
+TARGET=cat
 
+all: $(TARGET)
+
+$(TARGET):
+	$(CC) $(FLAGS) cat.c -lhelpers -o $@
+
+clean:
+	rm -f $(TARGET) 

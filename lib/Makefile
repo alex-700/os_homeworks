@@ -8,7 +8,7 @@ LIBRARY=libhelpers.so
 all: $(LIBRARY)
 
 $(LIBRARY): $(OBJECT)
-	$(CC) $(LDFLAGS) $(LIBRARY) $(OBJECT)
+	$(CC) $(LDFLAGS) $@ $^
 
 .c.o:
 	$(CC) $(CFLAGS) $(SOURCE) 

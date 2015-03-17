@@ -1,5 +1,5 @@
 CC=gcc
-FLAGS=-L../lib -I../lib
+FLAGS=-L../lib -I../lib -Wl,-rpath=../lib
 TARGET=cat
 
 all: $(TARGET)

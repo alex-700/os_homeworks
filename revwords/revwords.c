@@ -9,7 +9,7 @@ int main()
     char buf[MAX_WORD_SIZE];
     ssize_t read_bytes, wrote_bytes, last_k, start = 0;
     do {
-        read_bytes = read_until(STDIN_FILENO, buf + start, MAX_WORD_SIZE, ' ');
+        read_bytes = read_until(STDIN_FILENO, buf + start, MAX_WORD_SIZE - start, ' ');
         if (read_bytes == -1) {
             perror("input fail");
             return -1;

@@ -48,3 +48,25 @@ ssize_t read_until(int fd, void * buf, size_t count, char delimiter)
     } while (c != 0 && count != 0 && last_ans == ans);
     return ans;
 }
+int spawn(const char* file, char* const argv[])
+{
+    pid_t cpid = fork();
+    if (cpid == -1) {
+        return -1;
+    }
+
+    if (cpid == 0) {
+        return execvp(file, argv);    
+    } else {
+        int status;
+        pid_t w = waitpid(cpid, &status, 0);
+        if (w == -1) {
+            return -1;
+        }
+        if (WIFEXITED(status)) {
+            return WEXITSTATUS(status);
+        } else {
+            return -1;
+        }
+    }
+}

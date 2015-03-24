@@ -41,7 +41,7 @@ ssize_t read_until(int fd, void * buf, size_t count, char delimiter)
         count -= c;
         ans += c;
         for (;last_ans < ans; last_ans++) {
-            if (*((char *)(buf + last_ans)) == delimiter) {
+            if (((char *)buf)[last_ans] == delimiter) {
                 break;
             }
         }        
@@ -62,13 +62,10 @@ int spawn(const char* file, char* const argv[])
         if (w == -1) {
             return -1;
         }
-        return WEXITSTATUS(status);
-        /*
         if (WIFEXITED(status)) {
             return WEXITSTATUS(status);
         } else {
             return -1;
         }
-        */
     }
 }

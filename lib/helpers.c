@@ -54,19 +54,21 @@ int spawn(const char* file, char* const argv[])
     if (cpid == -1) {
         return -1;
     }
-
     if (cpid == 0) {
-        return execvp(file, argv);    
+        exit(execvp(file, argv));    
     } else {
         int status;
         pid_t w = waitpid(cpid, &status, 0);
         if (w == -1) {
             return -1;
         }
+        return WEXITSTATUS(status);
+        /*
         if (WIFEXITED(status)) {
             return WEXITSTATUS(status);
         } else {
             return -1;
         }
+        */
     }
 }

@@ -1,17 +1,6 @@
-CC=gcc
-CFLAGS=-c -Wall -fPIC
-LDFLAGS=-shared -o
-SOURCE=helpers.c
-OBJECT=helpers.o
-LIBRARY=libhelpers.so
-
-all: $(LIBRARY)
-
-$(LIBRARY): $(OBJECT)
-	$(CC) $(LDFLAGS) $@ $^
-
-.c.o:
-	$(CC) $(CFLAGS) $(SOURCE) 
-
+all:
+	gcc -shared -o libhelpers.so -fPIC helpers.c
+	gcc -shared -o libbufio.so -fPIC bufio.c
 clean:
-	rm -rf *.o $(LIBRARY)
+	rm *.so
+

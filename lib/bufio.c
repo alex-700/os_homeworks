@@ -49,7 +49,7 @@ ssize_t buf_fill(fd_t fd, struct buf_t* buffer, size_t required)
         abort(); 
     #endif
     ssize_t read_bytes = -1;
-    while (buffer->size < required || read_bytes != 0) {
+    while (buffer->size < required && read_bytes != 0) {
         read_bytes = read(fd, buffer->buf + buffer->size, buffer->capacity - buffer->size);
         if (read_bytes == -1) 
             return -1;

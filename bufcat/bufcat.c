@@ -8,8 +8,19 @@ int main()
     ssize_t read_bytes;
     while ((read_bytes = buf_fill(STDIN_FILENO, buffer, CHUNK_SIZE)) > 0)
     {   
-        buf_flush(STDOUT_FILENO, buffer, CHUNK_SIZE);
+        if (buf_flush(STDOUT_FILENO, buffer, CHUNK_SIZE) < 0) {
+            perror("output fail");
+            return EXIT_FAILURE;
+        }
     }
-    buf_flush(STDOUT_FILENO, buffer, CHUNK_SIZE);
-    return read_bytes;
+    if (buf_flush(STDOUT_FILENO, buffer, CHUNK_SIZE) < 0) {
+        perror("output fail");
+        return EXIT_FAILURE;
+    }
+    if (read_bytes < 0) {
+        perror("input fail");
+        return EXIT_FAILURE;
+    } else {
+        return EXIT_SUCCESS;
+    }
 }

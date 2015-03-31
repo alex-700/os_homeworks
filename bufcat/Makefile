@@ -4,7 +4,7 @@ TARGET=bufcat
 
 all: $(TARGET)
 
-$(TARGET):
+$(TARGET): $(TARGET).c
 	$(CC) $(FLAGS) bufcat.c -lbufio -o $@
 
 clean:

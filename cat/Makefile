@@ -4,7 +4,7 @@ TARGET=cat
 
 all: $(TARGET)
 
-$(TARGET):
+$(TARGET): $(TARGET).c
 	$(CC) $(FLAGS) cat.c -lhelpers -o $@
 
 clean:

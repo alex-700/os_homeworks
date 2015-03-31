@@ -4,7 +4,7 @@ TARGET=filter
 
 all: $(TARGET)
 
-$(TARGET): filter.c
+$(TARGET): $(TARGET).c
 	$(CC) $(FLAGS) $^ -lhelpers -o $@
 
 clean:

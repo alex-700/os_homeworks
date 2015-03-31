@@ -4,7 +4,7 @@ TARGET=revwords
 
 all: $(TARGET)
 
-$(TARGET): revwords.c
+$(TARGET): $(TARGET).c
 	$(CC) $(FLAGS) revwords.c -lhelpers -o $@
 
 clean:

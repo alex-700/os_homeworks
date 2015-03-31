@@ -1,6 +1,11 @@
-all:
-	gcc -shared -o libhelpers.so -fPIC helpers.c
-	gcc -shared -o libbufio.so -fPIC bufio.c
+CC=gcc
+
+all: libhelpers.so libbufio.so
+
+libhelpers.so: helpers.c	
+	$(CC) -shared -o $@ -fPIC $^
+libbufio.so: bufio.c
+	$(CC) -shared -o $@ -fPIC $^
 clean:
 	rm *.so
 

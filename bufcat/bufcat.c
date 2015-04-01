@@ -17,6 +17,7 @@ int main()
         perror("output fail");
         return EXIT_FAILURE;
     }
+    buf_free(buffer);
     if (read_bytes < 0) {
         perror("input fail");
         return EXIT_FAILURE;

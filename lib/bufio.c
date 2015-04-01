@@ -21,6 +21,7 @@ void buf_free(struct buf_t * buffer)
     if (!buffer) 
         abort();
     #endif
+    free(buffer->buf);
     free(buffer);
 }
 

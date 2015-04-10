@@ -78,3 +78,32 @@ ssize_t buf_flush(fd_t fd, struct buf_t* buffer, size_t required)
     buffer->size = buffer->size - current_position;
     return current_position;
 }
+
+
+ssize_t buf_getline(fd_t fd, struct buf_t* buffer, char* dest) {
+    #ifdef DEBUG
+    if (!buffer) abort();
+    #endif
+    size_t current = 0;
+    ssize_t ans = 0, read_bytes;
+    while (1) {
+        if (current == buffer->size) {
+            read_bytes = read(fd, buffer->buf + current, buffer->capacity - current);
+            if (read_bytes == -1)
+                return -1;
+            if (read_bytes == 0)
+                return 0;
+            buffer->size += read_bytes;
+        } else {
+            *dest = buffer->buf[current++];
+            dest++;
+            ans++;
+            if (buffer->buf[current - 1] == '\n') {
+                break;
+            }
+        }
+    }
+    memmove(buffer->buf, buffer->buf + current, buffer->size - current);
+    buffer->size -= current;
+    return ans;
+}

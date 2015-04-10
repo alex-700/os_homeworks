@@ -4,7 +4,7 @@ TARGET=foreach
 
 all: $(TARGET)
 
-$(TARGET): $(TARGET).c
+$(TARGET): $(TARGET).c	../lib/libbufio.so ../lib/libhelpers.so
 	$(CC) $(FLAGS) $^ -lhelpers -lbufio -o $@
 
 clean:

@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define MAX_STRING_SIZE 8192
+#define MAX_STRING_SIZE 4096
 
 char buf[MAX_STRING_SIZE];
 

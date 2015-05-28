@@ -85,6 +85,7 @@ struct execargs_t* create_execargs(char** args, size_t count) {
                 free(execargs->args[j]);
             }
             free(execargs->args);
+            free(execargs);
             return NULL;
         }
     }

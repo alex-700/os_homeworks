@@ -1,26 +1,41 @@
+#define _POSIX_C_SOURCE 201505L
+
 #include <bufio.h>
 #include <helpers.h>
 #include <stdio.h>
+#include <signal.h>
+#include <errno.h>
 
 #define CHUNK 2048
-const char* start_symbol = "$";
 
 void start_line() {
-    write(STDOUT_FILENO, start_symbol, 1);    
+    write_(STDOUT_FILENO, "$", 1);    
+}
+
+void ignore_handler() {
+    write_(STDOUT_FILENO, "\n", 1);
 }
 
 char str[CHUNK];
 char* args[CHUNK];
 struct execargs_t* programs[CHUNK];
 
-int main() {   
+int main() { 
+    struct sigaction ignore;
+    ignore.sa_handler = ignore_handler;
+    sigaction(SIGINT, &ignore, NULL);
+
     struct buf_t* buffer = buf_new(CHUNK);
     ssize_t read_bytes;
     size_t count_args, count_progs, start_str;
     while (1) {
         start_line();
         if ((read_bytes = buf_getline(STDOUT_FILENO, buffer, str)) <= 0) {
-            break;
+            if (read_bytes == 0 || errno != EINTR) {
+                break;
+            } else {
+                continue;
+            }
         }
         count_args = 0;
         count_progs = 0;
@@ -50,14 +65,13 @@ int main() {
             }
         }
         if (runpiped(programs, count_progs) == -1) {
-            perror("runpiped: ");
-            return EXIT_FAILURE;
+            write_(STDERR_FILENO, "something wrong\n", 16);
         }
     }
 
     buf_free(buffer);
     if (read_bytes == -1) {
-        perror("input: ");
+        perror("input");
         return EXIT_FAILURE;
     } else {
         return EXIT_SUCCESS;

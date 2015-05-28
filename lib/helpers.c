@@ -1,3 +1,4 @@
+
 #include "helpers.h"
 
 ssize_t read_(int fd, void *buf, size_t count) 
@@ -55,7 +56,7 @@ int spawn(const char* file, char* const argv[])
         return -1;
     }
     if (cpid == 0) {
-        execvp(file, argv); 
+        return execvp(file, argv);
     } else {
         int status;
         pid_t w = waitpid(cpid, &status, 0);
@@ -80,42 +81,62 @@ struct execargs_t* create_execargs(char** args, size_t count) {
     for (size_t i = 0; i < count; i++) {
         execargs->args[i] = strdup(args[i]);
         if (execargs->args[i] == NULL) {
+            for (size_t j = 0; j < i; j++) {
+                free(execargs->args[j]);
+            }
+            free(execargs->args);
             return NULL;
         }
     }
     return execargs;
 }
 int exec(struct execargs_t* args) {
-    execvp(args->args[0], args->args);    
+    return execvp(args->args[0], args->args);    
+}
+
+pid_t children[2048];
+size_t count, flag;
+void termination_handler() {
+    flag =  0;
+    for (size_t i = 0; i < count; i++) {
+        if (children[i] != 0) {
+            kill(children[i], SIGKILL);
+        }
+    }
 }
 
 int runpiped(struct execargs_t** programs, size_t n) {
-    
-    #ifdef DEBUG
-    printf("debug output start\n");
+    count = n;
+    flag = 1;
 
-    printf("get %zu programs\n", n);
-    for (size_t i = 0; i < n; i++) {
-        printf("%zu program\n", i + 1);
-        size_t argc = 0;
-        while (programs[i]->args[argc] != NULL) {
-            printf("%zu argument = '%s'\n", argc + 1, programs[i]->args[argc]);
-            argc++;
-        }
-    }
+    //signals
+    struct sigaction new_action, old_action;
+    new_action.sa_handler = termination_handler;
+    sigemptyset(&new_action.sa_mask);
+    new_action.sa_flags = 0;
+    sigaction(SIGINT, &new_action, &old_action);
 
-
-    printf("debug output finish\n\n");
-    #endif
+    //pipes
     int pipefd[n][2];
     for (size_t i = 0; i < n - 1; i++) {
         if (pipe(pipefd[i]) == -1) {
+            for (size_t j = 0; j < i; j++) {
+                close(pipefd[j][0]);
+                close(pipefd[j][1]);
+            }
             return EXIT_FAILURE;
         }
     }
+    
+    //start
     for (size_t i = 0; i < n; i++) {
         pid_t pid = fork();
         if (pid == -1) {
+            for (size_t j = 0; j < n - 1; j++) {
+                close(pipefd[j][0]);
+                close(pipefd[j][1]);
+            }
+            termination_handler();
             return EXIT_FAILURE;
         }
         if (pid == 0) {
@@ -125,14 +146,33 @@ int runpiped(struct execargs_t** programs, size_t n) {
             }
             if (i != 0) dup2(pipefd[i - 1][0], STDIN_FILENO);
             if (i != n - 1) dup2(pipefd[i][1], STDOUT_FILENO);
-            exec(programs[i]);       
+            exit(exec(programs[i]) == -1);
+        } else {
+            children[i] = pid;
         }
     }
+    
+    //closing pipes
     for (size_t i = 0; i < n - 1; i++) {
         close(pipefd[i][0]);
         close(pipefd[i][1]);
     }
+    
+    //canceling sigaction
+
     int status;
-    waitpid(0, &status, 0);
-    return WEXITSTATUS(status) == 0 ? 0 : -1;
+    int ret = 0;
+    for (int i = 0; i < n; i++) {
+        if (children[i] != 0) {
+            waitpid(children[i], &status, 0);
+            if (WEXITSTATUS(status) != 0) {
+                ret = -1;
+            }
+        } else {
+            ret = -1;
+        }
+    }
+    
+    sigaction(SIGINT, &old_action, NULL);
+    return flag * ret;
 }

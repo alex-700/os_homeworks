@@ -1,14 +1,14 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#define _POSIX_C_SOURCE 201505L
+
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
-
-#define DEBUG 
+#include <signal.h>
 
 struct execargs_t {
     char** args;

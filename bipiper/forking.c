@@ -16,7 +16,7 @@ int socket_fd[2];
 
 int main(int argc, char** argv) {
     if (argc <= 2) {
-        fprintf(stderr, "Usage: %s port1 port2\n", argv[0]);
+        fprintf(stderr, "Usage: %s <port1> <port2>\n", argv[0]);
         return EXIT_FAILURE;
     }
     struct addrinfo hints;
@@ -98,10 +98,6 @@ int main(int argc, char** argv) {
             }
             close(first_fd);
             close(second_fd);
-            if (pid != 0) {
-                int status;
-                waitpid(pid, &status, 0);
-            }
             exit(EXIT_SUCCESS);
         } else {
             close(first_fd);

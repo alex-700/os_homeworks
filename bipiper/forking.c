@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/wait.h>
 #include <netdb.h>
 #include <fcntl.h>
 
@@ -85,7 +86,6 @@ int main(int argc, char** argv) {
                 while ((read_bytes = buf_fill(first_fd, buffer, 1)) > 0) {
                     buf_flush(second_fd, buffer, read_bytes);
                 }
-                write(second_fd, "", 0);
                 buf_free(buffer);
             } else {
                 //from second to first
@@ -94,11 +94,14 @@ int main(int argc, char** argv) {
                 while ((read_bytes = buf_fill(second_fd, buffer, 1)) > 0) {
                     buf_flush(first_fd, buffer, read_bytes);
                 }
-                write(first_fd, "", 0);
                 buf_free(buffer);
             }
             close(first_fd);
             close(second_fd);
+            if (pid != 0) {
+                int status;
+                waitpid(pid, &status, 0);
+            }
             exit(EXIT_SUCCESS);
         } else {
             close(first_fd);

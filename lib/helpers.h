@@ -1,7 +1,9 @@
 #ifndef HELPERS_H
 #define HELPERS_H
 
+#ifndef _POSIX_C_SOURCE 
 #define _POSIX_C_SOURCE 201505L
+#endif
 
 #include <unistd.h>
 #include <sys/wait.h>

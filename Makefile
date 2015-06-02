@@ -6,6 +6,7 @@ all:
 	make -C bufcat/
 	make -C foreach/
 	make -C simplesh/
+	make -C filesender/
 clean:
 	make clean -C lib/
 	make clean -C cat/
@@ -14,3 +15,4 @@ clean:
 	make clean -C bufcat/
 	make clean -C foreach/
 	make clean -C simplesh/
+	make clean -C filesender/

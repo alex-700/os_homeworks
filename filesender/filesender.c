@@ -13,12 +13,11 @@
 
 int main(int argc, char** argv) {
     if (argc <= 2) {
-        fprintf(stderr, "Usage: %s port file\n", argv[0]);
+        fprintf(stderr, "Usage: %s <port> <file>\n", argv[0]);
         return EXIT_FAILURE;
     }
     char* port = argv[1];
     char* file = argv[2];
-    printf("port = '%s', file = '%s'\n", port, file);
     
     struct addrinfo hints;
     struct addrinfo *result, *rp;

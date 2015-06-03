@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <netdb.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #define ACCEPT_QUEUE_SIZE 10
 #define MAX 2048
@@ -19,6 +20,7 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Usage: %s <port1> <port2>\n", argv[0]);
         return EXIT_FAILURE;
     }
+    signal(SIGCHLD, SIG_IGN);
     struct addrinfo hints;
     struct addrinfo *result, *rp;
     memset(&hints, 0, sizeof(struct addrinfo));

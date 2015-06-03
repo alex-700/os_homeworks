@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <fcntl.h>
+#include <signal.h>
 
 #define ACCEPT_QUEUE_SIZE 10
 #define CHUNK 2048
@@ -16,6 +17,7 @@ int main(int argc, char** argv) {
         fprintf(stderr, "Usage: %s <port> <file>\n", argv[0]);
         return EXIT_FAILURE;
     }
+    signal(SIGCHLD, SIG_IGN);
     char* port = argv[1];
     char* file = argv[2];
     

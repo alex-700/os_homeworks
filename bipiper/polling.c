@@ -13,13 +13,14 @@
 #include <string.h>
 
 #define ACCEPT_QUEUE_SIZE 10
-#define TIMEOUT 1000*1000
+#define TIMEOUT 1000 * 1000
 #define MAX 2048
-#define MAX_CONNECTIONS 256 
+#define MAX_COUNT 256 
+
 int socket_fd[2];
-struct pollfd poll_set[MAX_CONNECTIONS];
-struct buf_t* buffs[MAX_CONNECTIONS - 2];
-int state[MAX_CONNECTIONS - 2];
+struct pollfd poll_set[MAX_COUNT];
+struct buf_t* buffs[MAX_COUNT - 2];
+int state[MAX_COUNT - 2];
 
 void out(const char* msg) {
     write_(STDOUT_FILENO, msg, strlen(msg));
@@ -81,14 +82,13 @@ int main(int argc, char** argv) {
         } else if (ret == 0) {
             out("timeout expired\n");
         } else {
-            if (count < MAX_CONNECTIONS) {
+            if (count < MAX_COUNT) {
                 if (poll_set[0].revents & POLLIN) {
                     //first acceptor 
                     first_fd = accept(poll_set[0].fd, (struct sockaddr*) &cli_addr, &clilen);
                     if (first_fd == -1) {
                         perror("accept");
                     } else {
-                        out("accepted some guy on first port\n");                        
                         poll_set[0].events = 0;
                         poll_set[1].events = POLLIN;
                     }
@@ -99,7 +99,6 @@ int main(int argc, char** argv) {
                     if (poll_set[count + 1].fd == -1) {
                         perror("accept");
                     } else {
-                        out("accepted some guy on second port\n");
                         poll_set[1].events = 0;
                         poll_set[0].events = poll_set[count].events = poll_set[count + 1].events = POLLIN;
                         poll_set[count].fd = first_fd;
@@ -119,12 +118,10 @@ int main(int argc, char** argv) {
                     int prev_size = buffs[i - 2]->size;
                     if (buf_fill(poll_set[i].fd, buffs[i - 2], 1) == prev_size) {
                         shutdown(poll_set[i].fd, SHUT_RD);
-                        printf("shutdown rd %d\n", i);
                         state[i - 2] = 1;
                         poll_set[i].events &= ~POLLIN;
                         if (prev_size == 0) {
                             shutdown(poll_set[i ^ 1].fd, SHUT_WR);
-                            printf("shutdown wr2 %d\n", i ^ 1);
                             state[i - 2] = 2;
                         }
                     } else {
@@ -138,7 +135,6 @@ int main(int argc, char** argv) {
                     buf_flush(poll_set[i].fd, buffs[(i - 2) ^ 1], 1);
                     if (state[(i - 2) ^ 1] == 1 && buffs[(i - 2) ^ 1]->size == 0) {
                         shutdown(poll_set[i].fd, SHUT_WR);
-                        printf("shutdown wr %d\n", i);
                         state[(i - 2) ^ 1] = 2;
                     }
                     if (state[(i - 2) ^ 1] == 0) poll_set[i ^ 1].events |= POLLIN;
@@ -148,7 +144,6 @@ int main(int argc, char** argv) {
                 }
                 if (state[i - 2] == 2 && state[(i - 2) ^ 1] == 2) {
                     //closing
-                    out("closing...\n");
                     close(poll_set[i].fd);
                     close(poll_set[i ^ 1].fd);
                     poll_set[i] = poll_set[count - 2 + (i & 1)];
@@ -160,7 +155,7 @@ int main(int argc, char** argv) {
                     state[i - 2] = state[count - 4 + (i & 1)];
                     state[(i - 2) ^ 1] = state[count - 4 + ((i ^ 1) & 1)];
                     count -= 2;
-                    if (count < MAX_CONNECTIONS) poll_set[0].events = POLLIN; 
+                    if (count < MAX_COUNT) poll_set[0].events = POLLIN; 
                     i = (i & (~1)) - 1;
                     continue;
                 }

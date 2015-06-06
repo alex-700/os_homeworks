@@ -116,7 +116,7 @@ int main(int argc, char** argv) {
                 if (poll_set[i].revents & POLLIN) {
                     //read
                     int prev_size = buffs[i - 2]->size;
-                    if (buf_fill(poll_set[i].fd, buffs[i - 2], 1) == prev_size) {
+                    if (buf_fill(poll_set[i].fd, buffs[i - 2], 1) <= prev_size) {
                         shutdown(poll_set[i].fd, SHUT_RD);
                         state[i - 2] = 1;
                         poll_set[i].events &= ~POLLIN;

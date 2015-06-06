@@ -86,17 +86,21 @@ int main(int argc, char** argv) {
                 struct buf_t* buffer = buf_new(MAX);
                 ssize_t read_bytes;
                 while ((read_bytes = buf_fill(first_fd, buffer, 1)) > 0) {
-                    buf_flush(second_fd, buffer, read_bytes);
+                    if (buf_flush(second_fd, buffer, 1) == -1) break;
                 }
                 buf_free(buffer);
+                shutdown(first_fd, SHUT_RD);
+                shutdown(second_fd, SHUT_WR);
             } else {
                 //from second to first
                 struct buf_t* buffer = buf_new(MAX);
                 ssize_t read_bytes;
                 while ((read_bytes = buf_fill(second_fd, buffer, 1)) > 0) {
-                    buf_flush(first_fd, buffer, read_bytes);
+                    if (buf_flush(first_fd, buffer, 1) == -1) break;
                 }
                 buf_free(buffer);
+                shutdown(first_fd, SHUT_WR);
+                shutdown(second_fd, SHUT_RD);
             }
             close(first_fd);
             close(second_fd);
